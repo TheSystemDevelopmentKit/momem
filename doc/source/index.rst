@@ -1,0 +1,22 @@
+.. ads documentation master file.
+   You can adapt this file completely to your liking, 
+   but it should at least contain the root `toctree` directive.
+
+.. toctree::
+   :maxdepth: 3
+   :caption: Contents:
+
+.. automodule:: ads
+   :members:
+   :undoc-members:
+
+.. automodule:: ads.citi_to_touchstone
+   :members:
+   :undoc-members:
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
