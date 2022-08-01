@@ -35,6 +35,6 @@ such that the implemented script may easily set the stateFile to correspond to c
     to this ads folder to ./adsfiles/emStateFile.template
 11. Add line "EMSTATEFILE=${THESDKHOME}/Entities/ads/adsfiles/emStateFile.template"
     to configure in TheSyDeKick project root, and run "./configure".
-
+12. Add line ADSSUBSTRATEFILE="<path_to_process_substrate_file>"
 
 """
