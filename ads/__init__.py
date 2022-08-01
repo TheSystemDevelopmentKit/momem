@@ -424,13 +424,13 @@ class ads(thesdk,metaclass=abc.ABCMeta):
             if stop_freq != -1 and step_freq != -1:
                 VIRTUOSO_DIR = os.environ["VIRTUOSO_DIR"]
 
-                os.system(f'sed -i -e "s/#STOP_FREQ_placeholder#/{stop_freq}/g" \
-                -e "s/#STEP_FREQ_placeholder#/{step_freq}/g" \
-                -e "s/#FREQ_POINTS_placeholder#/{freq_points}/g" \
-                -e "s/#EDGE_MESH_placeholder#/{self.edge_mesh_enable}/g" \
-                -e "s/#TL_MESH_CELLS_P_WIDTH_placeholder#/{self.TL_mesh_cells}/g" \
-                -e "s/#TL_MESH_ENABLE_placeholder#/{TL_mesh_enable}/g" \
-                -e "s/#MESH_CELLS_P_WL_placeholder#/{self.mesh_cells}/g" \
+                os.system(f'sed -i -e "s/22222/{stop_freq}/g" \
+                -e "s/1212/{step_freq}/g" \
+                -e "s/<ptsFreq>19</ptsFreq>/<ptsFreq>{freq_points}</ptsFreq>/g" \
+                -e "s/<EdgeMeshEnabled>True</EdgeMeshEnabled>/<EdgeMeshEnabled>{self.edge_mesh_enable}</EdgeMeshEnabled>/g" \
+                -e "s/44444/{self.TL_mesh_cells}/g" \
+                -e "s/<TLMeshEnabled>True</TLMeshEnabled>/<TLMeshEnabled>{TL_mesh_enable}</TLMeshEnabled>/g" \
+                -e "s/33333/{self.mesh_cells}/g" \
                  "{self.emsetupsrcpath}/emStateFile.xml"')
         else:
             self.print_log(type = "E", msg = f"{self.emsetupsrcpath} folder does not exist, run configure")

@@ -3,8 +3,12 @@
    but it should at least contain the root `toctree` directive.
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 4
    :caption: Contents:
+
+.. automodule:: doc.source.initial_setup_tutorial
+   :members:
+   :undoc-members:
 
 .. automodule:: ads
    :members:
