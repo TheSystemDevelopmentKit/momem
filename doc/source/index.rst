@@ -1,26 +1,17 @@
-.. ads documentation master file.
-   You can adapt this file completely to your liking, 
-   but it should at least contain the root `toctree` directive.
+.. rtl documentation master file, created by
+   sphinx-quickstart on Thu Aug 15 11:47:06 2019.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+===
+ADS
+===
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 3
    :caption: Contents:
 
-.. automodule:: doc.source.initial_setup_tutorial
-   :members:
-   :undoc-members:
+   sections
 
-.. automodule:: ads
-   :members:
-   :undoc-members:
+   indices_and_tables
 
-.. automodule:: ads.citi_to_touchstone
-   :members:
-   :undoc-members:
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

@@ -1,7 +1,7 @@
 """
-===
-ADS
-===
+===================
+ADS Interface class
+===================
 
 ADS Momentum simulation interface package for The System Development Kit 
 
