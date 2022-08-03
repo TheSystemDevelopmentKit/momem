@@ -2,13 +2,13 @@
    You can adapt this file completely to your liking, 
    but it should at least contain the root `toctree` directive.
 
+
+
 .. toctree::
    :maxdepth: 4
    :caption: Contents:
 
-.. automodule:: doc.source.initial_setup_tutorial
-   :members:
-   :undoc-members:
+   initial_setup_tutorial 
 
 .. automodule:: ads
    :members:

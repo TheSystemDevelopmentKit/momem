@@ -1,4 +1,3 @@
-"""
 ======================
 Initial setup tutorial
 ======================
@@ -55,4 +54,3 @@ to change the simulation settings.
     to the correct filename for your technology. After this run "./configure".
 
 Congratulations, you're done. 
-"""
