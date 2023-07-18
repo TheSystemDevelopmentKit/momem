@@ -296,7 +296,7 @@ class citi_to_touchstone(thesdk):
                     i+=1 
                     # Read from current row to var_nbr_of_points
                     if 'MAG' in self.var_format:
-                        self.var_data = np.loadtxt(self.input_file,dtype=np.float,skiprows=i,max_rows=self.var_nbr_of_points)
+                        self.var_data = np.loadtxt(self.input_file,dtype=float,skiprows=i,max_rows=self.var_nbr_of_points)
                     else:
                         self.print_log(type='E',msg=f"Frequency format: {self.var_format} should not exist. Check your CITIFile...")
                     # Add the numpy read lines to the line number index.
@@ -319,7 +319,7 @@ class citi_to_touchstone(thesdk):
                     i+=1
                     # Read from current row to current row + var_nbr_of_points
                     if 'RI' in self.data[name]['format']:
-                        self.data[name]['data']= np.loadtxt(self.input_file,dtype=np.float,skiprows=i,max_rows=self.var_nbr_of_points,delimiter=',').reshape(-1,2)
+                        self.data[name]['data']= np.loadtxt(self.input_file,dtype=float,skiprows=i,max_rows=self.var_nbr_of_points,delimiter=',').reshape(-1,2)
                     else:
                         self.print_log(type='E',msg=f"Data format: {self.data[name]['format']} should not exist. Check your CITIFile...")
                     # Add the numpy read lines to the index
