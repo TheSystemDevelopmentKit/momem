@@ -230,6 +230,7 @@ class citi_to_touchstone(thesdk):
             # Try to see it 5 times, with 1s delays.
             count = 0
             while not os.path.exists(self.input_file):
+                os.system('sync %s' % self.input_file)
                 self.print_log(type='I',msg=f"Attempting to find the CITIfile {self.input_file}. Try number {count+1}")
                 if count >= 4:
                     self.print_log(type='E',msg=f"Can't find the CITIfile in the path {self.input_file}.")
