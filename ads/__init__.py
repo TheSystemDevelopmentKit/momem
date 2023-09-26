@@ -226,7 +226,10 @@ class ads(thesdk,metaclass=abc.ABCMeta):
 
         Simulation path. (./Simulations/adssim/<runname>)
         """
-        self._adssimpath = self.entitypath+'/Simulations/adssim/'+self.runname
+        if self.load_state != '':
+            self._adssimpath = self.entitypath+'/Simulations/adssim/'+self.load_state
+        else:
+            self._adssimpath = self.entitypath+'/Simulations/adssim/'+self.runname
         try:
             if not (os.path.exists(self._adssimpath)):
                 os.makedirs(self._adssimpath)
