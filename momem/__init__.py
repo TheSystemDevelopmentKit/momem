@@ -45,6 +45,7 @@ import numpy as np
 import subprocess
 from datetime import datetime
 import shutil
+import skrf as rf
 
 class momem(thesdk,metaclass=abc.ABCMeta):
     @property
@@ -109,7 +110,7 @@ class momem(thesdk,metaclass=abc.ABCMeta):
         Not to be set externally, and is tb_<name>
         '''
         if not hasattr(self,'_result_filenames'):
-            self._result_filename=f'tb_{self.name}'
+            self._result_filenames=f'tb_{self.name}'
         return self._result_filenames
 
     @property
@@ -353,8 +354,8 @@ class momem(thesdk,metaclass=abc.ABCMeta):
             self.print_log(type='I',
                     msg=f"Saveed results to self.extracts.Members['net'].")
         except:
-            self.print_log(type='W',
-                    msg=f"Invalid filepath: {self.momemsimpath}.")
+            self.print_log(type='W',msg=traceback.format_exc())
+            self.print_log(type='W',msg=f'Something went wrong while reading simulation results from {filename}.')
             filepath=self.momemsimpath.split(self.runname)[0]
             self.print_log(type='F',
                     msg=f"Available results: {os.listdir(filepath)}")

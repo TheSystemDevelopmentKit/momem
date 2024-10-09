@@ -82,8 +82,19 @@ class ads(thesdk):
         """
         if not hasattr(self,'_adscmd'):
             adssimcmd = "adsMomWrapper -O -3D --objMode=RF proj proj"
-            self._adscmd = f'cd {self.parent.momemsimpath} && {self.ads_submission} {adssimcmd}'
+            self._adscmd = f'cd {self.parent.momemsimpath}/{self.proj_dir} && {self.parent.momem_submission} {adssimcmd}'
         return self._adscmd
+
+    @property
+    def proj_dir(self):
+        """String
+
+        Additional path name where the simulation input and result files come to.
+        For some reason it is 'simulation' for now at least.
+        """
+        if not hasattr(self,'_proj_dir'):
+            self._proj_dir = 'simulation'
+        return self._proj_dir
 
     def set_simulation_options(self, **kwargs):
         """ Automatically called function to set the simulation settings
@@ -170,8 +181,8 @@ class ads(thesdk):
             self.print_log(type='I',
                 msg=f"Creating the AEL file to generate simulation input files to {self.aelpath}")
             with open(self.aelpath, 'w') as f:
-                f.write('de_open_workspace("{self.parent.momemsimpath}"); // Open correct folder\n')
-                f.write('dex_em_writeSimulationFiles("{self.parent.libname}","{self.parent.cellname}","emSetup","simulation"); // Generate simulation input files\n')
+                f.write(f'de_open_workspace("{self.parent.momemsimpath}"); // Open correct folder\n')
+                f.write(f'dex_em_writeSimulationFiles("{self.parent.libname}","{self.parent.cellname}","emSetup","simulation"); // Generate simulation input files\n')
                 f.write('de_exit(); // Close ADS\n')
 
     def check_environment_variables(self):
@@ -205,6 +216,6 @@ class ads(thesdk):
         self.generate_input_files()
         self.execute_ads_sim()
         self.converter = ctt()
-        self.converter.input_file = f'{self.parent.momemsimpath}/proj.cti'
-        self.converter.output_file = f'{self.parent.momemsimpath}/{self.parent.result_filename}'
+        self.converter.input_file = f'{self.parent.momemsimpath}/{self.proj_dir}/proj.cti'
+        self.converter.output_file = f'{self.parent.momemsimpath}/{self.parent.result_filenames}'
         self.converter.generate_contents()

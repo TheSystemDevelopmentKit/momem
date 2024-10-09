@@ -87,7 +87,7 @@ class momem_simcmd(thesdk):
         Default: 30.
     TL_mesh_cells : int
         Applies for ADS only! Transmission line mesh density. Cells per line width
-        Default: 30.
+        Default: 0.
 
     Examples
     --------
@@ -117,7 +117,7 @@ class momem_simcmd(thesdk):
             self.via_separation = kwargs.get('via_separation',0.5)
             self.edge_mesh = kwargs.get('edge_mesh',True)
             self.mesh_cells = kwargs.get('mesh_cells',30)
-            self.TL_mesh_cells = kwargs.get('TL_mesh_cells',30)
+            self.TL_mesh_cells = kwargs.get('TL_mesh_cells',0)
             self.thickness = kwargs.get('thickness',1)
             self.port_map = kwargs.get('port_map',[]) if type(kwargs.get('port_map', [])) == list else [kwargs.get('port_map')]
             self.exclude_ports = kwargs.get('exclude_ports',[]) if type(kwargs.get('exclude_ports', [])) == list else [kwargs.get('exclude_ports')]
