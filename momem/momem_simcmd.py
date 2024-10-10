@@ -33,6 +33,7 @@ class momem_simcmd(thesdk):
         Set the port reference impedance when printing S-parameters (default 50 ohm).
     swpstart : float, optional
         Sweep start value. Give either this, swpstop and swpstep or the swpvalues
+        Default 0
     swpstop : float, optional
         Sweep stop value. Give either this, swpstart and swpstep or the swpvalues
     swpstep : float, optional
@@ -56,6 +57,10 @@ class momem_simcmd(thesdk):
     3d_metals : list
         Currently only supported in EMX! List of layers that you want to use the 
         3D models for. Default: All
+    surface_metals : list
+        Currently only supported in EMX! List of layers that you want to use the 
+        surface metal models for. Typically more useful for thicker metal
+        layers. Default: None
     recommended_memory : bool
         Applies for EMX only! Allow EMX to do discretization and interaction computation
         steps and determine a recommended amount of memory and set memory limit to
@@ -91,12 +96,14 @@ class momem_simcmd(thesdk):
 
     Examples
     --------
-    Simple sweep from 0 to 100 GHz with 1GHz steps and default edge_width, thickness and via_separation:: 
+    EMX sweep from 0 to 100 GHz with 1GHz steps and default edge_width, thickness and via_separation:: 
 
-        _=momem_simcmd(self,sim='sweep',impedance=50,
+        _=momem_simcmd(self,impedance=50,
                 swpstart=0,swpstop=100e9,swpstep=1e9,
                 port_map=self.port_map)
 
+    ADS sweep from 0 to 100 GHz with 1GHz steps and default mesh settings:: 
+        _=momem_simcmd(self, swpstop=100e9, swpstep=1e9)
     '''
 
     @property
@@ -108,7 +115,7 @@ class momem_simcmd(thesdk):
             self.parent = parent
             self.sim = kwargs.get('sim','sweep')
             self.impedance = kwargs.get('impedance',50)
-            self.swpstart = kwargs.get('swpstart',None)
+            self.swpstart = kwargs.get('swpstart',0)
             self.swpstop = kwargs.get('swpstop',None)
             self.swpstep = kwargs.get('swpstep',None)
             self.swpvalues = kwargs.get('swpvalues',[]) if type(kwargs.get('swpvalues', [])) == list else [kwargs.get('swpvalues')]
@@ -122,6 +129,7 @@ class momem_simcmd(thesdk):
             self.port_map = kwargs.get('port_map',[]) if type(kwargs.get('port_map', [])) == list else [kwargs.get('port_map')]
             self.exclude_ports = kwargs.get('exclude_ports',[]) if type(kwargs.get('exclude_ports', [])) == list else [kwargs.get('exclude_ports')]
             self.multid_metals = kwargs.get('3d_metals',[]) if type(kwargs.get('3d_metals', [])) == list else [kwargs.get('3d_metals')]
+            self.surface_metals = kwargs.get('surface_metals',[]) if type(kwargs.get('surface_metals', [])) == list else [kwargs.get('surface_metals')]
             self.recommended_memory = kwargs.get('recommended_memory',True)
             self.label_depth = kwargs.get('label_depth',0)
             self.simultaneous_frequencies = kwargs.get('simultaneous_frequencies',0)

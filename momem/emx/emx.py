@@ -67,19 +67,19 @@ class emx(thesdk):
         self._techlib=value
  
     @property 
-    def layermapppath(self):
+    def layermappath(self):
         ''' 
         String
 
         Name of the PDK technology library used for the designs. 
         Defaults to environment variable os.environ["LAYERMAP_PATH"].
         '''
-        if not hasattr(self,'_layermapppath'):
-            self._layermapppath=f'{os.environ["LAYERMAP_PATH"]}'
-        return self._layermapppath
-    @layermapppath.setter
-    def layermapppath(self,value):
-        self._layermapppath=value
+        if not hasattr(self,'_layermappath'):
+            self._layermappath=f'{os.environ["LAYERMAP_PATH"]}'
+        return self._layermappath
+    @layermappath.setter
+    def layermappath(self,value):
+        self._layermappath=value
 
 
     @property
@@ -101,9 +101,9 @@ class emx(thesdk):
         libname, cellname, techlib, layermappath, pin_attribute_num
         '''
         if not hasattr(self,'_gdscmd'):
-            self._gdscmd=f'cd {os.environ["VIRTUOSO_DIR"]} && strmout -library {self.libname} -strmFile {self.momemsimpath}/{self.result_filenames}.gds \
-                    -rundir {os.environ["VIRTUOSO_DIR"]} -topCell {self.cellname} -view layout -techLib {self.techlib} -layermap {self.layermappath} \
-                    -logFile {self.momemsimpath}/strmOut.log -summaryFile {self.momemsimpath}/gds_summary.log -verbose -pinAttNum {self.pin_attribute_num}'
+            self._gdscmd=f'cd {os.environ["VIRTUOSO_DIR"]} && strmout -library {self.parent.libname} -strmFile {self.parent.momemsimpath}/{self.parent.result_filenames}.gds \
+                    -rundir {os.environ["VIRTUOSO_DIR"]} -topCell {self.parent.cellname} -view layout -techLib {self.techlib} -layermap {self.layermappath} \
+                    -logFile {self.parent.momemsimpath}/strmOut.log -summaryFile {self.parent.momemsimpath}/gds_summary.log -verbose -pinAttNum {self.pin_attribute_num}'
         return self._gdscmd
 
     def generate_gds(self):
@@ -122,60 +122,67 @@ class emx(thesdk):
         Simulation command string to be executed on the command line.
         Automatically generated.
         """
-        for sim, val in self.simcmds.Members.items():
-            self._emxcmd=f'emx {self.parent.momemsimpath}/{self.parent.result_filenames}.gds \
-                    {self.parent.cellname} {self.processpath} --discrete-frequency=0 \
-                    --discrete-frequency=1e3 --discrete-frequency=1e6 --accuracy=high \
-                    --edge-width={self.edge_width} --thickness={self.thickness} --via-separation={self.via_separation} \
-                    --simultaneous-frequencies={self.simultaneous_frequencies} --parallel={self.parallel} --label-depth={self.label_depth}'        
-            if self.quasistatic:
+        for sim, val in self.parent.simcmd_bundle.Members.items():
+            self._emxcmd=f'emx {self.parent.momemsimpath}/{self.parent.result_filenames}.gds {self.parent.cellname} {self.processpath} --discrete-frequency=0 --discrete-frequency=1e3 --discrete-frequency=1e6 --accuracy=high --edge-width={val.edge_width} --thickness={val.thickness} --via-separation={val.via_separation} --simultaneous-frequencies={val.simultaneous_frequencies} --parallel={val.parallel} --label-depth={val.label_depth}'        
+            if val.quasistatic:
                 self._emxcmd+=' --quasistatic'
             else:
                 self._emxcmd+=' --full-wave'
-            if self.recommended_memory:
+            if val.recommended_memory:
                 self._emxcmd+=' --recommended-memory'
-            if self.sim=='sweep':
-                if len(self.swpvalues)==0 and any((self.swpstart==None,
-                    self.swpstop==None,self.swpstep==None)):
+            if val.sim=='sweep':
+                if len(val.swpvalues)==0 and any((val.swpstart==None,
+                    val.swpstop==None,val.swpstep==None)):
                     self.print_log(type='F',
                             msg=f"Sweep start/stop/step OR sweep values not given to momem_simcmd. Fix and run again.")
-                elif len(self.swpvalues)>0:
-                    for val in self.swpvalues:
-                        self._emxcmd+=f' {val}'
+                elif len(val.swpvalues)>0:
+                    for value in val.swpvalues:
+                        self._emxcmd+=f' {value}'
                 else:
-                    self._emxcmd+=f' --sweep {self.swpstart} {self.swpstop} --sweep-stepsize={self.swpstep}'
+                    self._emxcmd+=f' --sweep {val.swpstart} {val.swpstop} --sweep-stepsize={val.swpstep}'
             else:
                 self.print_log(type='F',
                         msg=f"Invalid simulation type for momem")
-            self._emxcmd+=f' --s-impedance={self.impedance} --touchstone --s-file={self.parent.momemsimpath}/{self.result_filenames}.s%np' 
-            if len(self.port_map)>0:
-                for val in self.port_map:
-                    self._emxcmd+=f' -p {val[0]}={val[1]}'
-                    self._emxcmd+=f' -i {val[0]}'
+            self._emxcmd+=f' --s-impedance={val.impedance} --touchstone --s-file={self.parent.momemsimpath}/{self.parent.result_filenames}.s%np' 
+            if len(val.port_map)>0:
+                for value in val.port_map:
+                    self._emxcmd+=f' -p {value[0]}={value[1]}'
+                    self._emxcmd+=f' -i {value[0]}'
             else:
                 self.print_log(type='W',
                         msg="Port mapping not given. Are you sure oyu know how your ports are mapped now?")
-            if len(self.exclude_ports)>0:
-                for val in self.exclude_ports:
-                    self._emxcmd+=f' --exclude {val}'
-            if len(multid_metals)>0:
+            if len(val.exclude_ports)>0:
+                for value in val.exclude_ports:
+                    self._emxcmd+=f' --exclude {value}'
+            if len(val.multid_metals)>0:
                 self._emxcmd+=f' --3d='
-                for val in self.multid_metals:
-                    if val==self.multid_metals[-1]:
-                        self._emxcmd+=f'{val}'
+                for value in val.multid_metals:
+                    if value==val.multid_metals[-1]:
+                        self._emxcmd+=f'{value}'
                     else:
-                        self._emxcmd+=f'{val},'
+                        self._emxcmd+=f'{value},'
             else:
                 self._emxcmd+=f' --3d=*'
-            if len(self.surface_metals)>0:
+            if len(val.surface_metals)>0:
                 self._emxcmd+=f' --surface='
-                for val in self.surface_metals:
-                    if val==self.surface_metals[-1]:
-                        self._emxcmd+=f'{val}'
+                for value in val.surface_metals:
+                    if value==val.surface_metals[-1]:
+                        self._emxcmd+=f'{value}'
                     else:
-                        self._emxcmd+=f'{val},'
+                        self._emxcmd+=f'{value},'
             self._emxcmd+=f' --cadence-pins={self.pin_attribute_num} --log-file={self.parent.momemsimpath}/{self.parent.result_filenames}.log --print-command-line --verbose=1'
         return self._emxcmd
+
+    def check_environment_variables(self):
+        ''' 
+        List of all required environment variables. Will raise a KeyError
+        if some of them do not exist.
+        '''
+        env_vars=[os.environ['VIRTUOSO_DIR'],
+                os.environ["EMX_PROC"],
+                os.environ["TECHLIB"],
+                os.environ["LAYERMAP_PATH"],
+                ]
 
     def execute_emx_simulation(self):
         """Externally called function to execute emx simulation."""
@@ -187,12 +194,11 @@ class emx(thesdk):
             self.print_log(type='E',
                     msg=traceback.format_exc())
             self.print_log(type='F',
-                    msg="Running simulation failed. Have you defined momemsimcmd?")
-
-
+                    msg="Running simulation failed.")
 
     def run(self):
         """Externally called function to generate a gds and 
         execute emx simulation."""
+        self.check_environment_variables()
         self.generate_gds()
-        self.execute_emx_sim()
+        self.execute_emx_simulation()
