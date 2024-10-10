@@ -2,7 +2,8 @@
 ===
 EMX
 ===
-EMX simulation interface package for Spectre for TheSyDeKick.
+Simulation interface package for EMX EM-field
+simulator for TheSyDeKick.
 
 Initially written by Veeti Lahtinen, 2024
 
@@ -177,6 +178,12 @@ class emx(thesdk):
         ''' 
         List of all required environment variables. Will raise a KeyError
         if some of them do not exist.
+
+        
+        VIRTUOSO_DIR is the path to your virtuoso directory
+        TECHLIB is the name of your technology library
+        EMX_PROC is path to your process .proc file for EMX
+        LAYERMAP_PATH is the path to your PDK layer map.
         '''
         env_vars=[os.environ['VIRTUOSO_DIR'],
                 os.environ["EMX_PROC"],

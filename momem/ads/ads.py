@@ -137,21 +137,31 @@ class ads(thesdk):
                 self.print_log(type='I', msg="Running external command %s" %(cmd) )
                 subprocess.check_output(cmd,shell=True)
 
-
+    def link_oa_design(self):
+        ''' 
+        Links OA designs to ADS. 
+        '''
+        oa_path=os.environ["ADSSUBSTRATEFILE"]
+        oa_filename=oa_path.split("/")[-1]
+        target_path=f'{os.environ["VIRTUOSO_DIR"]}/{self.parent.libname}/{oa_filename}'
+        if not os.path.exists(target_path):
+            self.print_log(type='I', msg="Copying {oa_path} to {target_path}")
+            shutil.copy(oa_path,target_path)
+        target_path=f'{self.parent.momemsimpath}/lib.defs'
+        if not os.path.exists(target_path):
+            self.print_log(type='I', 
+                    msg=f"Creating lib.defs file")
+            with open(target_path,'w') as f:
+                f.write(f"INCLUDE $HPEESOF_DIR/oalibs/analog_rf.defs\n")
+                f.write(f"DEFINE {self.parent.libname} {os.environ['VIRTUOSO_DIR']}/{self.parent.libname}\n")
+                f.write(f"ASSIGN {self.parent.libname} libMode shared\n")
+        
     def configure_environment(self):
         ''' 
         Create the files and configure the environment for the
         simulator. Implements the original functionality
         from the configure script of ads_template.
         '''
-        link_oa_design_path=f'{self.parent.entitypath}/link_oa_design.sh'
-        if not os.path.exists(link_oa_design_path):
-            self.print_log(type='F',
-                msg=f"You need link_oa_design script. See momem_template!")
-        else:
-            cmd=f'{link_oa_design_path} -l {os.environ["VIRTUOSO_DIR"]}/{self.parent.libname} -t {os.environ["ADSSUBSTRATEFILE"]} -w {self.parent.momemsimpath}'
-            self.print_log(type='I', msg="Running external command %s" %(cmd) )
-            subprocess.check_output(cmd,shell=True)
         if not os.path.exists(self.emsetupsrcpath):
             os.mkdir(self.emsetupsrcpath)
         master_tag_path=f'{self.emsetupsrcpath}/master.tag'
@@ -189,6 +199,10 @@ class ads(thesdk):
         ''' 
         List of all required environment variables. Will raise a KeyError
         if some of them do not exist.
+
+        VIRTUOSO_DIR is the path to your virtuoso directory
+        ADS substrate file is the path to the EM substrate file
+        EMSTATEFILE is path to the emStateFile.template. The generation of the is described in the initial setup tutorial
         '''
         env_vars=[os.environ['VIRTUOSO_DIR'],
                 os.environ["ADSSUBSTRATEFILE"],
@@ -211,6 +225,7 @@ class ads(thesdk):
     def run(self):
         """Externally called function to execute ads simulation."""
         self.check_environment_variables()
+        self.link_oa_design()
         self.configure_environment()
         self.set_simulation_options()
         self.generate_input_files()
