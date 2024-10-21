@@ -145,7 +145,7 @@ class ads(thesdk):
         oa_filename=oa_path.split("/")[-1]
         target_path=f'{os.environ["VIRTUOSO_DIR"]}/{self.parent.libname}/{oa_filename}'
         if not os.path.exists(target_path):
-            self.print_log(type='I', msg="Copying {oa_path} to {target_path}")
+            self.print_log(type='I', msg=f"Copying {oa_path} to {target_path}")
             shutil.copy(oa_path,target_path)
         target_path=f'{self.parent.momemsimpath}/lib.defs'
         if not os.path.exists(target_path):
