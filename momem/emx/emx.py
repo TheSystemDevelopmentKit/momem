@@ -171,6 +171,8 @@ class emx(thesdk):
                         self._emxcmd+=f'{value}'
                     else:
                         self._emxcmd+=f'{value},'
+            if val.key:
+                self._emxcmd+=f' --key={val.key}'
             self._emxcmd+=f' --cadence-pins={self.pin_attribute_num} --log-file={self.parent.momemsimpath}/{self.parent.result_filenames}.log --print-command-line --verbose=1'
         return self._emxcmd
 

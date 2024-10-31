@@ -84,6 +84,8 @@ class momem_simcmd(thesdk):
         for calculating the interactions between elements.
         Makes simulations faster and use less memory.
         Default True, if False, full wave model is used. 
+    key : string
+        Applies for EMX only! String to open an encrypted process file.
     edge_mesh : bool
         Applies for ADS only! Enable edge mesh? 
         Default: True.
@@ -135,6 +137,7 @@ class momem_simcmd(thesdk):
             self.simultaneous_frequencies = kwargs.get('simultaneous_frequencies',0)
             self.parallel = kwargs.get('parallel',0)
             self.quasistatic = kwargs.get('quasistatic',True)
+            self.key = kwargs.get('key',None)
         except:
             self.print_log(type='E',msg=traceback.format_exc())
             self.print_log(type='F', msg="Simulation command definition failed.")
