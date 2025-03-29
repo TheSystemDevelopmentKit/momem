@@ -18,11 +18,12 @@ import sys
 
 #Path is relative to source directory
 sys.path.insert(0, os.path.abspath('../../'))
+sys.path.insert(0, os.path.abspath('../../momem/'))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'ads'
+project = 'momem'
 copyright = '2019 TheSyDeKick Community'
 author = 'Veeti Lahtinen'
 
@@ -110,7 +111,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'adsdoc'
+htmlhelp_basename = 'momemdoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -137,7 +138,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'ads.tex', 'ads Documentation',
+    (master_doc, 'momem.tex', 'momem Documentation',
      'Your Name', 'manual'),
 ]
 
@@ -147,7 +148,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'ads', 'ads Documentation',
+    (master_doc, 'momem', 'momem Documentation',
      [author], 1)
 ]
 
@@ -158,8 +159,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'ads', 'ads Documentation',
-     author, 'ads', 'One line description of project.',
+    (master_doc, 'momem', 'momem Documentation',
+     author, 'momem', 'One line description of project.',
      'Miscellaneous'),
 ]
 
