@@ -1,4 +1,4 @@
-'''
+"""
 ======================
 EMX simulation command
 ======================
@@ -7,25 +7,27 @@ Class for EMX simulation commands
 
 Initially written by Veeti Lahtinen
 
-'''
+"""
+
 import os
 import sys
-from abc import * 
+from abc import *
 from thesdk import *
 from thesdk.iofile import iofile
 import numpy as np
 import pandas as pd
 import pdb
 
+
 class momem_simcmd(thesdk):
-    '''
+    """
     Class to provide simulation command parameters to momem testbench.
     When instantiated in the parent class, this class automatically
     attaches spice_simcmd objects to simcmd_bundle -bundle in testbench.
-    
+
     Attributes
     ----------
-    parent : object 
+    parent : object
         The parent object initializing the spice_simcmd instance. Default None.
     sim : 'sweep'
         Simulation type. Currently 'sweep' only supported
@@ -55,16 +57,16 @@ class momem_simcmd(thesdk):
     exclude_ports : list
         Currently only supported in EMX! List of ports you don't want to solve.
     3d_metals : list
-        Currently only supported in EMX! List of layers that you want to use the 
+        Currently only supported in EMX! List of layers that you want to use the
         3D models for. Default: All
     surface_metals : list
-        Currently only supported in EMX! List of layers that you want to use the 
+        Currently only supported in EMX! List of layers that you want to use the
         surface metal models for. Typically more useful for thicker metal
         layers. Default: None
     recommended_memory : bool
         Applies for EMX only! Allow EMX to do discretization and interaction computation
         steps and determine a recommended amount of memory and set memory limit to
-        the recommendation. 
+        the recommendation.
         Default True.
     label_depth : int
         Applies for EMX only! Default 0 means that EMX oonly considers labels in the
@@ -83,11 +85,11 @@ class momem_simcmd(thesdk):
         thus this option can be used to tell EMX that a quasistatic model is sufficient
         for calculating the interactions between elements.
         Makes simulations faster and use less memory.
-        Default True, if False, full wave model is used. 
+        Default True, if False, full wave model is used.
     key : string
         Applies for EMX only! String to open an encrypted process file.
     edge_mesh : bool
-        Applies for ADS only! Enable edge mesh? 
+        Applies for ADS only! Enable edge mesh?
         Default: True.
     mesh_cells : int
         Applies for ADS only! Number of mesh cells per fstop wavelenght.
@@ -98,50 +100,73 @@ class momem_simcmd(thesdk):
 
     Examples
     --------
-    EMX sweep from 0 to 100 GHz with 1GHz steps and default edge_width, thickness and via_separation:: 
+    EMX sweep from 0 to 100 GHz with 1GHz steps and default edge_width, thickness and via_separation::
 
         _=momem_simcmd(self,impedance=50,
                 swpstart=0,swpstop=100e9,swpstep=1e9,
                 port_map=self.port_map)
 
-    ADS sweep from 0 to 100 GHz with 1GHz steps and default mesh settings:: 
+    ADS sweep from 0 to 100 GHz with 1GHz steps and default mesh settings::
         _=momem_simcmd(self, swpstop=100e9, swpstep=1e9)
-    '''
+    """
 
     @property
     def _classfile(self):
-        return os.path.dirname(os.path.realpath(__file__)) + "/"+__name__
+        return os.path.dirname(os.path.realpath(__file__)) + "/" + __name__
 
-    def __init__(self,parent,**kwargs):
+    def __init__(self, parent, **kwargs):
         try:
             self.parent = parent
-            self.sim = kwargs.get('sim','sweep')
-            self.impedance = kwargs.get('impedance',50)
-            self.swpstart = kwargs.get('swpstart',0)
-            self.swpstop = kwargs.get('swpstop',None)
-            self.swpstep = kwargs.get('swpstep',None)
-            self.swpvalues = kwargs.get('swpvalues',[]) if type(kwargs.get('swpvalues', [])) == list else [kwargs.get('swpvalues')]
-            self.edge_width = kwargs.get('edge_width',1)
-            self.thickness = kwargs.get('thickness',1)
-            self.via_separation = kwargs.get('via_separation',0.5)
-            self.edge_mesh = kwargs.get('edge_mesh',True)
-            self.mesh_cells = kwargs.get('mesh_cells',30)
-            self.TL_mesh_cells = kwargs.get('TL_mesh_cells',0)
-            self.thickness = kwargs.get('thickness',1)
-            self.port_map = kwargs.get('port_map',[]) if type(kwargs.get('port_map', [])) == list else [kwargs.get('port_map')]
-            self.exclude_ports = kwargs.get('exclude_ports',[]) if type(kwargs.get('exclude_ports', [])) == list else [kwargs.get('exclude_ports')]
-            self.multid_metals = kwargs.get('3d_metals',[]) if type(kwargs.get('3d_metals', [])) == list else [kwargs.get('3d_metals')]
-            self.surface_metals = kwargs.get('surface_metals',[]) if type(kwargs.get('surface_metals', [])) == list else [kwargs.get('surface_metals')]
-            self.recommended_memory = kwargs.get('recommended_memory',True)
-            self.label_depth = kwargs.get('label_depth',0)
-            self.simultaneous_frequencies = kwargs.get('simultaneous_frequencies',0)
-            self.parallel = kwargs.get('parallel',0)
-            self.quasistatic = kwargs.get('quasistatic',True)
-            self.key = kwargs.get('key',None)
+            self.sim = kwargs.get("sim", "sweep")
+            self.impedance = kwargs.get("impedance", 50)
+            self.swpstart = kwargs.get("swpstart", 0)
+            self.swpstop = kwargs.get("swpstop", None)
+            self.swpstep = kwargs.get("swpstep", None)
+            self.swpvalues = (
+                kwargs.get("swpvalues", [])
+                if type(kwargs.get("swpvalues", [])) == list
+                else [kwargs.get("swpvalues")]
+            )
+            self.edge_width = kwargs.get("edge_width", 1)
+            self.thickness = kwargs.get("thickness", 1)
+            self.via_separation = kwargs.get("via_separation", 0.5)
+            self.edge_mesh = kwargs.get("edge_mesh", True)
+            self.mesh_cells = kwargs.get("mesh_cells", 30)
+            self.TL_mesh_cells = kwargs.get("TL_mesh_cells", 0)
+            self.thickness = kwargs.get("thickness", 1)
+            self.port_map = (
+                kwargs.get("port_map", [])
+                if type(kwargs.get("port_map", [])) == list
+                else [kwargs.get("port_map")]
+            )
+            self.exclude_ports = (
+                kwargs.get("exclude_ports", [])
+                if type(kwargs.get("exclude_ports", [])) == list
+                else [kwargs.get("exclude_ports")]
+            )
+            self.multid_metals = (
+                kwargs.get("3d_metals", [])
+                if type(kwargs.get("3d_metals", [])) == list
+                else [kwargs.get("3d_metals")]
+            )
+            self.surface_metals = (
+                kwargs.get("surface_metals", [])
+                if type(kwargs.get("surface_metals", [])) == list
+                else [kwargs.get("surface_metals")]
+            )
+            self.recommended_memory = kwargs.get("recommended_memory", True)
+            self.label_depth = kwargs.get("label_depth", 0)
+            self.simultaneous_frequencies = kwargs.get(
+                "simultaneous_frequencies", 0
+            )
+            self.parallel = kwargs.get("parallel", 0)
+            self.quasistatic = kwargs.get("quasistatic", True)
+            self.key = kwargs.get("key", None)
         except:
-            self.print_log(type='E',msg=traceback.format_exc())
-            self.print_log(type='F', msg="Simulation command definition failed.")
+            self.print_log(type="E", msg=traceback.format_exc())
+            self.print_log(
+                type="F", msg="Simulation command definition failed."
+            )
 
-        if hasattr(self.parent,'simcmd_bundle'):
-            self.parent.simcmd_bundle.new(name=self.sim,val=self)
-
+        if hasattr(self.parent, "simcmd_bundle"):
+            self.parent.simcmd_bundle.new(name=self.sim, val=self)
