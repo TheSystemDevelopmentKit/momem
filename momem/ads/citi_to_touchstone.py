@@ -19,7 +19,7 @@ Initially written by Veeti Lahtinen 2021
 """
 
 from thesdk import *
-from ads import *
+from momem import *
 
 import os
 import sys
