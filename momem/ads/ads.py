@@ -54,6 +54,24 @@ class ads(thesdk):
             )
         return self._emsetupsrcpath
 
+    @emsetupsrcpath.setter
+    def emsetupsrcpath(self, value):
+        self._emsetupsrcpath = value
+
+    @property
+    def enable_oa_link(self):
+        """Boolean
+        Enable or disable OA link
+        from Virtuoso to ADS
+        """
+        if not hasattr(self, "_enable_oa_link"):
+            self._enable_oa_link = True
+        return self._enable_oa_link
+
+    @enable_oa_link.setter
+    def enable_oa_link(self, value):
+        self._enable_oa_link = value
+
     @property
     def sourcelibpath(self):
         """String
@@ -253,7 +271,13 @@ class ads(thesdk):
     def run(self):
         """Externally called function to execute ads simulation."""
         self.check_environment_variables()
-        self.link_oa_design()
+        if self.enable_oa_link == True:
+            self.link_oa_design()
+        else:
+            self.print_log(
+                type="W",
+                msg=f"OA link explicitly disabled. This is fine if you are using GDS export/import",
+            )
         self.configure_environment()
         self.set_simulation_options()
         self.generate_input_files()
@@ -262,7 +286,9 @@ class ads(thesdk):
         self.converter.input_file = (
             f"{self.parent.momemsimpath}/{self.proj_dir}/proj.cti"
         )
+
         self.converter.output_file = (
             f"{self.parent.momemsimpath}/{self.parent.result_filenames}"
         )
+
         self.converter.generate_contents()
