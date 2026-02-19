@@ -274,18 +274,21 @@ class ads(thesdk):
         if self.enable_oa_link == True:
             self.link_oa_design()
         else:
-            self.print_log(type="W", msg=f"OA link explicitly disabled. This is fine if you are using GDS export/import")
+            self.print_log(
+                type="W",
+                msg=f"OA link explicitly disabled. This is fine if you are using GDS export/import",
+            )
         self.configure_environment()
         self.set_simulation_options()
         self.generate_input_files()
         self.execute_ads_sim()
         self.converter = ctt()
         self.converter.input_file = (
-                f"{self.parent.momemsimpath}/{self.proj_dir}/proj.cti"
-                )
-        
+            f"{self.parent.momemsimpath}/{self.proj_dir}/proj.cti"
+        )
+
         self.converter.output_file = (
-                f"{self.parent.momemsimpath}/{self.parent.result_filenames}"
-                )
-        
+            f"{self.parent.momemsimpath}/{self.parent.result_filenames}"
+        )
+
         self.converter.generate_contents()

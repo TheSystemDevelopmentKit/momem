@@ -239,11 +239,11 @@ class citi_to_touchstone(thesdk):
         if not hasattr(self, "_lines"):
             # Check that given file exists.
             # Try to see it 5 times, with 1s delays.
-            
+
             count = 0
             self.print_log(
-                    type="I", msg=f"Reading input file {self.input_file}"
-                    )
+                type="I", msg=f"Reading input file {self.input_file}"
+            )
             while not os.path.exists(self.input_file):
                 os.system("sync %s" % self.input_file)
                 self.print_log(
