@@ -392,7 +392,8 @@ class citi_to_touchstone(thesdk):
                 pass
             else:
                 self.print_log(
-                    type="E", msg=f"File: {filename} already exists!"
+                    type="W",
+                    msg=f"File: {filename} already exists! Overwriting!",
                 )
                 os.system(f"rm -f {filename}")
             with open(filename, "w") as outfile:
