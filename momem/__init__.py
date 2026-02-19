@@ -279,6 +279,10 @@ class momem(thesdk, metaclass=abc.ABCMeta):
             os.makedirs(self._momemsimpath)
         return self._momemsimpath
 
+    @momemsimpath.setter
+    def momemsimpath(self, value):
+        self._momemsimpath = value
+
     def cleanup_momemsimpath(self):
         """Method to clean up files from momemsimpath.
 

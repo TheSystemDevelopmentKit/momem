@@ -239,20 +239,24 @@ class citi_to_touchstone(thesdk):
         if not hasattr(self, "_lines"):
             # Check that given file exists.
             # Try to see it 5 times, with 1s delays.
+            
             count = 0
+            self.print_log(
+                    type="I", msg=f"Reading input file {self.input_file}"
+                    )
             while not os.path.exists(self.input_file):
                 os.system("sync %s" % self.input_file)
                 self.print_log(
                     type="I",
                     msg=f"Attempting to find the CITIfile {self.input_file}. Try number {count+1}",
                 )
-                if count >= 4:
+                if count >= 30:
                     self.print_log(
                         type="E",
                         msg=f"Can't find the CITIfile in the path {self.input_file}.",
                     )
                     break
-                time.sleep(1)
+                time.sleep(5)
                 count += 1
             if os.path.exists(self.input_file):
                 with open(self.input_file, "r") as openfile:
@@ -385,99 +389,101 @@ class citi_to_touchstone(thesdk):
                 self.print_log(
                     type="I", msg=f"Writing the S-Parameter data to {filename}"
                 )
-                with open(filename, "w") as outfile:
-                    # Begin by writing the comments to the file
-                    for comment in self.comments:
-                        outfile.write(comment + "\n")
-                    # Write normalization info to the sNp file as comment
-                    outfile.write(f"! NORMALIZATION: {self.normalization}\n")
-                    # Write the data header part
-                    # Documentation for the data header part:
-                    # "# <FREQ_UNITS>  <TYPE>  <FORMAT>  <Rn>", where "#" is the option line delimiter.
-                    # <FREQ_UNITS> = Units of the frequency data. Options are GHz, MHz, KHz, or Hz.
-                    # <TYPE> = Type of file data. Options are:  S, Y or Z for S1P components, S, Y, Z, G, or H for S2P components, S for 3 or more ports
-                    # <FORMAT> = S-parameter format. Options are: DB for dB-angle, MA for magnitude angle, RI for real-imaginary
-                    # <Rn> = Reference resistance in ohms, where n is a positive number. This is the impedance the S-parameters were normalized to.
-                    if self.var_unit == "":
-                        freq_unit = "hz"  # Is this true? Seems to be working...
-                    # Assumption: all ports have same impedance. It does not seem possible to define different
-                    # port impedances in touchstone format.
-                    outfile.write(
-                        f'# {freq_unit} S {self.data[self.data_names[0]]["format"].lower()} R {self.data["PORTZ[1]"]["data"][0][0]}\n'
-                    )
-                    # Another comment that is often in Touchstone files
-                    outfile.write(
-                        f"! {self.nbr_of_ports} Port Network Data from data block\n"
-                    )
-                    # For some ungodly reason, Touchstone has different logic / order of ports for 2-port than any other
-                    # amount of ports... Also for less than 3 ports, data comes on the same line.
-                    # 2 ports:
-                    if self.nbr_of_ports == 2:
-                        # Positions hard coded. Since Keysight Momentum does not label the data in the citifile, this is probably the only way
-                        S11 = self.data_names[0]
-                        S12 = self.data_names[1]
-                        S21 = self.data_names[2]
-                        S22 = self.data_names[3]
-                        # S11 S21 S12 S22 is the order for 2-port...
-                        # Write this to the file to improve readability.
-                        outfile.write(
-                            f"! freq Re{S11} Im{S11} Re{S21} Im{S21} Re{S12} Im{S12} Re{S22} Im{S22}\n! \n"
-                        )
-                        for i in range(self.var_nbr_of_points):
-                            # Hope that Keysight does not change the order the data comes in
-                            S11_data = self.data[S11]["data"][
-                                i
-                            ]  # Index 0 = real values, 1 = imaginary.
-                            S12_data = self.data[S12]["data"][i]
-                            S21_data = self.data[S21]["data"][i]
-                            S22_data = self.data[S22]["data"][i]
-                            datastring = f"{self.var_data[i]} {S11_data[0]} {S11_data[1]} {S21_data[0]} {S21_data[1]} {S12_data[0]} {S12_data[1]} {S22_data[0]} {S22_data[1]}\n"
-                            outfile.write(datastring)
-                    else:
-                        # Write the comment outlining the structure of the file. Makes readability better
-                        nextstring = "! freq "
-                        for i in range(len(self.data_names)):
-                            # List all of the ports not including the port impedances.
-                            if not "PORTZ" in self.data_names[i]:
-                                nextstring = (
-                                    nextstring
-                                    + f"Re{self.data_names[i]} Im{self.data_names[i]} "
-                                )
-                                # Add linebreak after listing every port.
-                                if (
-                                    i + 1
-                                ) % self.nbr_of_ports == 0:  # i+1 to avoid first linebreak on the first line
-                                    # Add linebreak and create new comment line
-                                    nextstring = nextstring + "\n!      "
-                            # Stop writing when it starts listing the port impedances
-                            else:
-                                break
-                        # Write it to the file, add final linebreak.
-                        outfile.write(nextstring + "\n")
-                        # Writing the actual data.
-                        for i in range(self.var_nbr_of_points):
-                            nextstring = f"{self.var_data[i]} "  # Frequency
-                            for j in range(len(self.data_names)):
-                                if (
-                                    not "PORTZ" in self.data_names[j]
-                                ):  # a solution to skip Z-port data
-                                    nextstring = f'{nextstring} {self.data[self.data_names[j]]["data"][i][0]} {self.data[self.data_names[j]]["data"][i][1] }'
-                                    # Add linebreak after listing every port.
-                                    # Example for 3-port:
-                                    # <FREQ>  |S11|  <S11  |S12|  <S12  |S13|  <S13
-                                    #         |S21|  <S21  |S22|  <S22  |S23|  <S23
-                                    #         |S31|  <S31  |S32|  <S32  |S33|  <S33
-                                    if (
-                                        j + 1
-                                    ) % self.nbr_of_ports == 0:  # j+1 to avoid first linebreak on the first line
-                                        nextstring = nextstring + "\n"
-                                else:
-                                    break
-                            outfile.write(nextstring + "\n")
+                pass
             else:
                 self.print_log(
                     type="E", msg=f"File: {filename} already exists!"
                 )
+                os.system(f"rm -f {filename}")
+            with open(filename, "w") as outfile:
+                # Begin by writing the comments to the file
+                for comment in self.comments:
+                    outfile.write(comment + "\n")
+                # Write normalization info to the sNp file as comment
+                outfile.write(f"! NORMALIZATION: {self.normalization}\n")
+                # Write the data header part
+                # Documentation for the data header part:
+                # "# <FREQ_UNITS>  <TYPE>  <FORMAT>  <Rn>", where "#" is the option line delimiter.
+                # <FREQ_UNITS> = Units of the frequency data. Options are GHz, MHz, KHz, or Hz.
+                # <TYPE> = Type of file data. Options are:  S, Y or Z for S1P components, S, Y, Z, G, or H for S2P components, S for 3 or more ports
+                # <FORMAT> = S-parameter format. Options are: DB for dB-angle, MA for magnitude angle, RI for real-imaginary
+                # <Rn> = Reference resistance in ohms, where n is a positive number. This is the impedance the S-parameters were normalized to.
+                if self.var_unit == "":
+                    freq_unit = "hz"  # Is this true? Seems to be working...
+                # Assumption: all ports have same impedance. It does not seem possible to define different
+                # port impedances in touchstone format.
+                outfile.write(
+                    f'# {freq_unit} S {self.data[self.data_names[0]]["format"].lower()} R {self.data["PORTZ[1]"]["data"][0][0]}\n'
+                )
+                # Another comment that is often in Touchstone files
+                outfile.write(
+                    f"! {self.nbr_of_ports} Port Network Data from data block\n"
+                )
+                # For some ungodly reason, Touchstone has different logic / order of ports for 2-port than any other
+                # amount of ports... Also for less than 3 ports, data comes on the same line.
+                # 2 ports:
+                if self.nbr_of_ports == 2:
+                    # Positions hard coded. Since Keysight Momentum does not label the data in the citifile, this is probably the only way
+                    S11 = self.data_names[0]
+                    S12 = self.data_names[1]
+                    S21 = self.data_names[2]
+                    S22 = self.data_names[3]
+                    # S11 S21 S12 S22 is the order for 2-port...
+                    # Write this to the file to improve readability.
+                    outfile.write(
+                        f"! freq Re{S11} Im{S11} Re{S21} Im{S21} Re{S12} Im{S12} Re{S22} Im{S22}\n! \n"
+                    )
+                    for i in range(self.var_nbr_of_points):
+                        # Hope that Keysight does not change the order the data comes in
+                        S11_data = self.data[S11]["data"][
+                            i
+                        ]  # Index 0 = real values, 1 = imaginary.
+                        S12_data = self.data[S12]["data"][i]
+                        S21_data = self.data[S21]["data"][i]
+                        S22_data = self.data[S22]["data"][i]
+                        datastring = f"{self.var_data[i]} {S11_data[0]} {S11_data[1]} {S21_data[0]} {S21_data[1]} {S12_data[0]} {S12_data[1]} {S22_data[0]} {S22_data[1]}\n"
+                        outfile.write(datastring)
+                else:
+                    # Write the comment outlining the structure of the file. Makes readability better
+                    nextstring = "! freq "
+                    for i in range(len(self.data_names)):
+                        # List all of the ports not including the port impedances.
+                        if not "PORTZ" in self.data_names[i]:
+                            nextstring = (
+                                nextstring
+                                + f"Re{self.data_names[i]} Im{self.data_names[i]} "
+                            )
+                            # Add linebreak after listing every port.
+                            if (
+                                i + 1
+                            ) % self.nbr_of_ports == 0:  # i+1 to avoid first linebreak on the first line
+                                # Add linebreak and create new comment line
+                                nextstring = nextstring + "\n!      "
+                        # Stop writing when it starts listing the port impedances
+                        else:
+                            break
+                    # Write it to the file, add final linebreak.
+                    outfile.write(nextstring + "\n")
+                    # Writing the actual data.
+                    for i in range(self.var_nbr_of_points):
+                        nextstring = f"{self.var_data[i]} "  # Frequency
+                        for j in range(len(self.data_names)):
+                            if (
+                                not "PORTZ" in self.data_names[j]
+                            ):  # a solution to skip Z-port data
+                                nextstring = f'{nextstring} {self.data[self.data_names[j]]["data"][i][0]} {self.data[self.data_names[j]]["data"][i][1] }'
+                                # Add linebreak after listing every port.
+                                # Example for 3-port:
+                                # <FREQ>  |S11|  <S11  |S12|  <S12  |S13|  <S13
+                                #         |S21|  <S21  |S22|  <S22  |S23|  <S23
+                                #         |S31|  <S31  |S32|  <S32  |S33|  <S33
+                                if (
+                                    j + 1
+                                ) % self.nbr_of_ports == 0:  # j+1 to avoid first linebreak on the first line
+                                    nextstring = nextstring + "\n"
+                            else:
+                                break
+                        outfile.write(nextstring + "\n")
         except AttributeError:
             self.print_log(
                 type="E", msg="Error writing the S-Parameter Touchstone file."
