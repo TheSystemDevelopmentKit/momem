@@ -1,5 +1,5 @@
-ADS interface
-=============
+Momem interface
+===============
 
 .. toctree::
    :maxdepth: 4
@@ -7,7 +7,7 @@ ADS interface
 
    initial_setup_tutorial 
 
-.. automodule:: ads
+.. automodule:: momem
    :members:
    :undoc-members:
 
